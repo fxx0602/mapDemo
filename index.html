@@ -10,111 +10,209 @@
 			body {
 				background-color: #012549;
 			}
+
 			#maproom {
-				width: 960px;height:656px; 
+				width: 960px;
+				height: 656px;
 			}
+			
+		.btnbackcss { 
+			position: absolute;
+			right: calc(30px + 480px);
+			top: 10px;
+			background-color: rgba(49, 252, 255, 0.3);
+			width: 80px;
+			height: 40px;
+			border-radius: 50%;
+			text-align: center;
+			}
+    .btnbackcss>span { 
+			line-height: 40px;
+		font-size: 18px;
+		cursor: pointer;
+		color: white
+		}
 		</style>
 	</head>
-	
+
 	<body>
 		<div id="maproom"></div>
-		
+		<div class="btnbackcss">
+            <span onclick="back()">返回</span>
+          </div>
+
 		<script>
+			var mapchart;
 			$(function() {
-				let mapchart = echarts.init(document.getElementById("maproom")); // 一个mmp一个实列
-				let soureurl = 'mapdata/41/410000.json';
-                $.get(soureurl, function (itJson) {
-      echarts.registerMap("xxname", itJson); //  还有一种是 JSON 文件，需要通过 AJAX 异步加载后手动注册
-      let mapOption = {
-        color: ["#EF4F4F"], // series  items系列颜色
-        tooltip: {
-          trigger: 'item',
-          formatter: function (params) {
-            return params.name + ' : ' + params.value[2];
-          }
-        },
-        geo: {
-          map: 'xxname',
-          name: "", // 系列名称
-          roam: false, // 鼠标滚动缩放或者平移，默认不开启（false）
-          zoom: 1, // 当前视角的缩放比例，默认是 1
-          layoutCenter: ["50%", "50%"], //地图中心的位置
-          layoutSize: 656, //地图的大小s
-          aspectScale: 0.75, //scale 地图的长宽比。
-          selectedMode: 'single', // 选中模式，表示是否支持多个选中，默认关闭，支持布尔值和字符串，字符串取值可选'single'表示单选，或者'multiple'表示多选。
-          label: {
-            show: true,
-            color: '#eff0f1',
-            fontSize: 20,
-          },
-          itemStyle: { // 地图区域的多边形 图形样式。
-            areaColor: "rgba(11,44,73,0.8)", //地图区域的颜色。
-            borderWidth: 3,
-            borderType: 'solid',
-            borderColor: '#0fe4e7'
-          },
-          regions: [ //在地图中对特定的区域配置样式。
-            {
-            name: '义乌市', //地图区域的名称
-            label: {
-              show: true,
-              color: '#eff0f1',
-              fontSize: 15,
-            },
-            itemStyle: {
-              areaColor: "rgba(11,44,73,0.8)",
-              borderWidth: 1,
-              borderType: 'solid',
-              borderColor: '#0fe4e7'
-            }
-          }],
-          //regions: regionsColor,
-          emphasis: { //高亮状态下的多边形和标签样式。
-            label: {
-              show: true,
-              color: '#eff0f1',
-              fontSize: 25
-            },
-            itemStyle: {
-              areaColor: 'rgba(15,129,166,1)',
-              borderWidth: 3,
-              borderType: 'solid',
-              borderColor: '#DFB753'
-            }
-          }
-        },
-        series: [
-					// {
-     //      name: "",
-     //      type: 'effectScatter',
-     //      effectType: "ripple", // 特效，目前只支持涟漪
-     //      showEffectOn: 'render', // 绘制完成后显示特效
-     //      rippleEffect: {
-     //        brushType: 'stroke', // 波纹的绘制方式，可选 'stroke' 和 'fill'
-     //        period: 2, // 动画周期 s
-     //        scale: 5, // 动画中波纹的最大缩放比例
-     //      },
-     //      coordinateSystem: 'geo',
-     //      geoIndex: 0,
-     //      data: [],
-     //      symbolSize: function (dataItem) {
-     //        let sizenum;
-     //        const itsize = dataItem[2];
-     //        if (itsize <= 5) {
-     //          sizenum = itsize * 5;
-     //        } else {
-     //          sizenum = 28;
-     //        }
-     //        return sizenum;
-     //      }
-     //    },
-				]
-      };
-      mapchart.setOption(mapOption);
-    });
-				
+				const url = '410000';
+				var mapData = {
+					'郑州市':410100,
+					'开封市':410200,
+					'洛阳市':410300,
+					'平顶山市':410400,
+					'安阳市':410500,
+					'鹤壁市':410600,
+					'新乡市':410700,
+					'濮阳市':410900,
+					'许昌市':411000,
+					'漯河市':411100,
+					'三门峡市':411200,
+					'南阳市':411300,
+					'商丘市':411400,
+					'信阳市':411500,
+					'周口市':411600,
+					'驻马店市':411700,
+					'济源市':419001,
+					
+				};
+				stackMap = [];
+				mapchart = echarts.init(document.getElementById("maproom")); // 一个mmp一个实列
+					var nowCode = url;
+				showMap(url, mapchart);
+			
+				mapchart.on('click', function(params) {
+					const selectmapName = params.name; // 根据 map-code对应关系找到 下钻地图的经纬度数据，用汉字匹配的
+					const code = mapData[selectmapName];
+					stackMap.push(nowCode);
+					if (code) {
+						showMap(code, mapchart);
+					}
+			
+				});
+				mapchart.on("mousemove", function(params) {
+					const namev = params.name;
+					console.log(params);
+// 					if (that.geomoveRegionname != namev) {
+// 						that.geomoveRegionname = params.name;
+// 						const move_xzbm = that.sxCodeMapinit[that.geomoveRegionname]; // 移动区域的行政编码
+// 						that.showTqmsg(that.geomoveRegionname, move_xzbm);
+// 						const move_ksgljgid = that.nowmap_children_xzbm2ksgljgid[move_xzbm]; // 动区域的 考试管理机构id
+// 
+// 						that.infoKsgljg(move_ksgljgid, (resp) => {
+// 							if (resp) {
+// 								const zhzxmc = resp.zhzxmc; // 指挥中心名称
+// 								const zhzxdh = resp.zhzxdh; // 指挥中心电话
+// 								const fzrxm = resp.fzrxm; // 负责人
+// 								const ksgljgdz = resp.ksgljgdz; // 考试管理机构地址
+// 								that.jgobj = {
+// 									mc: zhzxmc,
+// 									fzr: fzrxm,
+// 									dh: zhzxdh,
+// 									dz: ksgljgdz
+// 								}
+// 							}
+// 						});
+// 					}
+				});
 			});
+
+			function showMap(url, mapcharts) {
+
+				let soureurl = 'mapdata/41/' + url + '.json';
+				$.get(soureurl, function(itJson) {
+					echarts.registerMap("xxname", itJson); //  还有一种是 JSON 文件，需要通过 AJAX 异步加载后手动注册
+					let mapOption = {
+						color: ["#EF4F4F"], // series  items系列颜色
+						tooltip: { //无效,在目前中无效
+							trigger: 'item',
+							formatter: function(params) {
+								console.log('----')
+								console.log(params);
+								return params.name + ' : ' + params.value[2];
+							}
+						},
+						geo: {
+							map: 'xxname',
+							name: "", // 系列名称
+							roam: false, // 鼠标滚动缩放或者平移，默认不开启（false）
+							zoom: 1, // 当前视角的缩放比例，默认是 1
+							layoutCenter: ["50%", "50%"], //地图中心的位置
+							layoutSize: 656, //地图的大小s
+							aspectScale: 0.75, //scale 地图的长宽比。
+							selectedMode: 'single', // 选中模式，表示是否支持多个选中，默认关闭，支持布尔值和字符串，字符串取值可选'single'表示单选，或者'multiple'表示多选。
+							label: {
+								show: true,
+								color: '#eff0f1',
+								fontSize: 20,
+							},
+							itemStyle: { // 地图区域的多边形 图形样式。
+								areaColor: "rgba(11,44,73,0.8)", //地图区域的颜色。
+								borderWidth: 3,
+								borderType: 'solid',
+								borderColor: '#0fe4e7'
+							},
+							regions: [ //在地图中对特定的区域配置样式。
+								{
+									name: '义乌市', //地图区域的名称
+									label: {
+										show: true,
+										color: '#eff0f1',
+										fontSize: 15,
+									},
+									itemStyle: {
+										areaColor: "rgba(11,44,73,0.8)",
+										borderWidth: 1,
+										borderType: 'solid',
+										borderColor: '#0fe4e7'
+									}
+								}
+							],
+							//regions: regionsColor,
+							emphasis: { //高亮状态下的多边形和标签样式。
+								label: {
+									show: true,
+									color: '#eff0f1',
+									fontSize: 25
+								},
+								itemStyle: {
+									areaColor: 'rgba(15,129,166,1)',
+									borderWidth: 3,
+									borderType: 'solid',
+									borderColor: '#DFB753'
+								}
+							}
+						},
+						series: [
+							// {
+							//      name: "",
+							//      type: 'effectScatter',
+							//      effectType: "ripple", // 特效，目前只支持涟漪
+							//      showEffectOn: 'render', // 绘制完成后显示特效
+							//      rippleEffect: {
+							//        brushType: 'stroke', // 波纹的绘制方式，可选 'stroke' 和 'fill'
+							//        period: 2, // 动画周期 s
+							//        scale: 5, // 动画中波纹的最大缩放比例
+							//      },
+							//      coordinateSystem: 'geo',
+							//      geoIndex: 0,
+							//      data: [],
+							//      symbolSize: function (dataItem) {
+							//        let sizenum;
+							//        const itsize = dataItem[2];
+							//        if (itsize <= 5) {
+							//          sizenum = itsize * 5;
+							//        } else {
+							//          sizenum = 28;
+							//        }
+							//        return sizenum;
+							//      }
+							//    },
+						]
+					};
+					mapcharts.setOption(mapOption);
+				});
+			}
+			
+			function back() {
+			
+				const code = stackMap.pop();
+				if (code) {
+					showMap(code,mapchart);
+				} else {
+					alert('已是第一级');
+				}
+			}
 		</script>
 	</body>
-	
+
 </html>
