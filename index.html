@@ -24,7 +24,7 @@
 				let mapchart = echarts.init(document.getElementById("maproom")); // 一个mmp一个实列
 				let soureurl = 'mapdata/41/410000.json';
                 $.get(soureurl, function (itJson) {
-      echarts.registerMap("xxname", itJson); // 还有一种是 JSON 文件，需要通过 AJAX 异步加载后手动注册
+      echarts.registerMap("xxname", itJson); //  还有一种是 JSON 文件，需要通过 AJAX 异步加载后手动注册
       let mapOption = {
         color: ["#EF4F4F"], // series  items系列颜色
         tooltip: {
