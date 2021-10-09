@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<link rel="stylesheet" href="css/font-awesome/css/font-awesome.css">
+		<script src='js/jquery.js'></script>
+		<script src="js/echarts.js"></script>
+		<script src="js/echarts-liquidfill.js"></script>
+		<style type="text/css">
+			.scrollRoom {
+				width: 450px;
+				height: 280px;
+				overflow: hidden
+			}
+
+			.helproom {
+				width: 1800px;
+				height: 280px
+			}
+
+			.itemroom {
+				width: 450px;
+				height: 280px;
+				float: left
+			}
+
+			.item {
+				width: 450px;
+				height: 180px;
+			}
+
+			.Nroom {
+				width: 50%;
+				text-align: center
+			}
+
+			.Nlabel {
+				font-size: 20px;
+				color: #30E1E7;
+				padding: 5px 10px
+			}
+
+			.Ncount {
+				font-size: 25px;
+				/* color: #ffffff */
+			}
+
+			,
+			.itemroom1 {
+				width: 450px;
+				height: 280px;
+				float: left
+			}
+
+			.item1 {
+				width: 450px;
+				height: 180px;
+			}
+		</style>
+		<script>
+			var chart = [];
+			var lockid;
+			$(function() {
+				let qylList = [{
+					"bh": "01",
+					"jgbm": "330000",
+					"jgmc": "郑州",
+					"kds": 200,
+					"kdqys": 2,
+					"kdqyl": "1.00",
+					"kcs": 2000,
+					"kcqys": 300,
+					"kcqyl": "15.00"
+				}, {
+					"bh": "02",
+					"jgbm": "330000",
+					"jgmc": "平顶山",
+					"kds": 200,
+					"kdqys": 2,
+					"kdqyl": "1.00",
+					"kcs": 2000,
+					"kcqys": 156,
+					"kcqyl": "7.80"
+				}, {
+					"bh": "03",
+					"jgbm": "330100",
+					"jgmc": "漯河",
+					"kds": 200,
+					"kdqys": 2,
+					"kdqyl": "1.00",
+					"kcs": 2000,
+					"kcqys": 234,
+					"kcqyl": "11.70"
+				}, {
+					"bh": "04",
+					"jgbm": "330200",
+					"jgmc": "信阳",
+					"kds": 200,
+					"kdqys": 2,
+					"kdqyl": "1.00",
+					"kcs": 2000,
+					"kcqys": 145,
+					"kcqyl": "7.25"
+				}];
+
+				qylList.forEach((item, index) => {
+					initPie1(item.kdqys, Number(item.kds) - Number(item.kdqys), item.kcqys, Number(item.kcs) - Number(item.kcqys),
+						item.jgmc, index);
+				});
+
+				if (lockid) {
+					clearInterval(lockid);
+				}
+				lockid = setInterval(() => {
+					$(".rs_kdkcqys .scrollRoom").animate({
+						scrollLeft: 450
+					}, "slow", 'linear', () => {
+						const templateroom = document.querySelector(".rs_kdkcqys .helproom"); //容器
+						if (templateroom.children) {
+							const firstchild = templateroom.children.item(0); //容器第一个元素
+							$(firstchild).appendTo($(templateroom));
+							document.querySelector(".rs_kdkcqys .scrollRoom").scrollLeft = 0;
+						}
+					});
+				}, 3000);
+
+			});
+
+			function initPie1(kdqys, kdwqys, kcqys, kcwqys, name, id){
+
+				if (chart[id]) {
+					chart[id].clear();
+					chart[id].dispose();
+				}
+				chart[id] = echarts.init(document.querySelectorAll('.rs_kdkcqys .item').item(id));
+				const optionv = getOption(kdqys, kdwqys, kcqys, kcwqys, name);
+				chart[id].setOption(optionv);
+			}
+
+
+			/**
+			 *
+			 * @param {number} kdqys   考点启用数
+			 * @param {number} kdwqys  考点未启用数
+			 * @param {number} kcqys    考场启用数
+			 * @param {number} kcwqys    考场未启用数
+			 * @returns {any}
+			 */
+			function getOption(kdqys, kdwqys, kcqys, kcwqys, titlemc) {
+				const option = {
+					tooltip: {
+						trigger: 'item',
+						formatter: "{b}: {c} ({d}%)"
+					},
+					title: {
+						text: '{mytile|' + titlemc + '}',
+						textStyle: {
+							rich: {
+								mytile: {
+									//color: "#fff",
+									fontWeight: "bolder",
+									fontSize: 25,
+									width: 150,
+									height: 28,
+									lineHeight: 28
+								},
+							},
+						},
+						left: "center",
+						backgroundColor: "#169BD5",
+					},
+					series: [
+						{
+							type: "pie",
+							name: "",
+							center: ["25%", "60%"],
+							radius: ['50%', '70%'],
+							hoverAnimation: false,
+							label: {
+								show: true,
+								//color: "#FFF",
+								fontSize: 25,
+								position: 'center',
+								formatter: function(params) {
+									let retstr = "";
+									const dataIndex = params.dataIndex;
+									const percent = params.percent;
+									if (dataIndex == 0) {
+										if (percent == 0) {
+											retstr = "0%";
+										} else {
+											retstr = params.percent + "%";
+										}
+									}
+									return retstr;
+								}
+							},
+							left: 0,
+							top: 0,
+							right: 0,
+							bottom: 0,
+							data: [{
+								name: "",
+								value: kdqys,
+								itemStyle: {
+									color: {
+										type: 'linear',
+										x: 0,
+										y: 0,
+										x2: 0,
+										y2: 1,
+										colorStops: [{
+											offset: 0,
+											color: 'green' // 0% 处的颜色
+										}, {
+											offset: 1,
+											color: 'green' // 100% 处的颜色
+										}],
+										global: false // 缺省为 false
+									}
+								},
+							}, {
+								name: "",
+								value: kdwqys,
+								itemStyle: {
+									color: {
+										type: 'linear',
+										x: 0,
+										y: 0,
+										x2: 0,
+										y2: 1,
+										colorStops: [{
+											offset: 0,
+											color: 'green' // 0% 处的颜色
+										}, {
+											offset: 1,
+											color: 'green' // 100% 处的颜色
+										}],
+										global: false // 缺省为 false
+									}
+								},
+							}]
+						},
+						{
+							type: "pie",
+							name: "启用_外环",
+							center: ["25%", "60%"],
+							radius: ['75%', '80%'],
+							hoverAnimation: false,
+							label: {
+								show: false,
+							},
+							left: 0,
+							top: 0,
+							right: 0,
+							bottom: 0,
+							data: [{
+								name: "",
+								value: 1,
+								itemStyle: {
+									color: {
+										type: 'linear',
+										x: 0,
+										y: 0,
+										x2: 0,
+										y2: 1,
+										colorStops: [{
+											offset: 0,
+											color: 'green' // 0% 处的颜色
+										}, {
+											offset: 1,
+											color: 'green' // 100% 处的颜色
+										}],
+										global: false // 缺省为 false
+									}
+								},
+							}, {
+								name: "",
+								value: 0,
+								itemStyle: {
+									color: {
+										type: 'linear',
+										x: 0,
+										y: 0,
+										x2: 0,
+										y2: 1,
+										colorStops: [{
+											offset: 0,
+											color: 'green' // 0% 处的颜色
+										}, {
+											offset: 1,
+											color: 'green' // 100% 处的颜色
+										}],
+										global: false // 缺省为 false
+									}
+								},
+							}]
+						},
+						{
+							type: "pie",
+							name: "",
+							center: ["75%", "60%"],
+							radius: ['50%', '70%'],
+							hoverAnimation: false,
+							label: {
+								show: true,
+								//color: "#FFF",
+								fontSize: 25,
+								position: 'center',
+								formatter: function(params) {
+									let retstr = "";
+									const dataIndex = params.dataIndex;
+									const percent = params.percent;
+									if (dataIndex == 0) {
+										if (percent == 0) {
+											retstr = "0%";
+										} else {
+											retstr = params.percent + "%";
+										}
+									}
+									return retstr;
+								}
+							},
+							left: 0,
+							top: 0,
+							right: 0,
+							bottom: 0,
+							data: [{
+								name: "",
+								value: kcqys,
+								itemStyle: {
+									color: {
+										type: 'linear',
+										x: 0,
+										y: 0,
+										x2: 0,
+										y2: 1,
+										colorStops: [{
+											offset: 0,
+											color: 'red' // 0% 处的颜色
+										}, {
+											offset: 1,
+											color: 'red' // 100% 处的颜色
+										}],
+										global: false // 缺省为 false
+									}
+								},
+							}, {
+								name: "",
+								value: kcwqys,
+								itemStyle: {
+									color: {
+										type: 'linear',
+										x: 0,
+										y: 0,
+										x2: 0,
+										y2: 1,
+										colorStops: [{
+											offset: 0,
+											color: 'red' // 0% 处的颜色
+										}, {
+											offset: 1,
+											color: 'red' // 100% 处的颜色
+										}],
+										global: false // 缺省为 false
+									}
+								},
+							}]
+						}, 
+						{
+							type: "pie",
+							name: "启用_外环",
+							center: ["75%", "60%"],
+							radius: ['75%', '80%'],
+							hoverAnimation: false,
+							label: {
+								show: false,
+							},
+							left: 0,
+							top: 0,
+							right: 0,
+							bottom: 0,
+							data: [{
+								name: "",
+								value: 1,
+								itemStyle: {
+									color: {
+										type: 'linear',
+										x: 0,
+										y: 0,
+										x2: 0,
+										y2: 1,
+										colorStops: [{
+											offset: 0,
+											color: 'red' // 0% 处的颜色
+										}, {
+											offset: 1,
+											color: 'red' // 100% 处的颜色
+										}],
+										global: false // 缺省为 false
+									}
+								},
+							}, {
+								name: "",
+								value: 0,
+								itemStyle: {
+									color: {
+										type: 'linear',
+										x: 0,
+										y: 0,
+										x2: 0,
+										y2: 1,
+										colorStops: [{
+											offset: 0,
+											color: 'red' // 0% 处的颜色
+										}, {
+											offset: 1,
+											color: 'red' // 100% 处的颜色
+										}],
+										global: false // 缺省为 false
+									}
+								},
+							}]
+						}
+					]
+				};
+				return option;
+			}
+		</script>
+	</head>
+	<body>
+		<div class="rs_kdkcqys">
+			<div class="scrollRoom">
+				<div class="helproom">
+					<div class="itemroom">
+						<div class="item"></div>
+						
+					</div>
+					<div class="itemroom">
+						<div class="item"></div>
+						
+					
+					</div>
+					<div class="itemroom">
+						<div class="item"></div>
+						
+					
+					</div>
+					<div class="itemroom">
+						<div class="item"></div>
+						
+			
+					</div>
+			
+				</div>
+			</div>
+		</div>
+		
+
+	</body>
+</html>

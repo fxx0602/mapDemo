@@ -4,6 +4,8 @@
 	<head>
 		<meta charset="utf-8">
 		<title>echarts地图</title>
+
+		<link rel="stylesheet" href="css/font-awesome/css/font-awesome.css">
 		<script src='js/jquery.js'></script>
 		<script src="js/echarts.js"></script>
 		<script src="js/echarts-liquidfill.js"></script>
@@ -11,12 +13,12 @@
 			body {
 				background-color: #012549;
 			}
-			
+
 			#maproom {
 				width: 960px;
 				height: 656px;
 			}
-			
+
 			.btnbackcss {
 				position: absolute;
 				right: calc(30px + 480px);
@@ -27,13 +29,84 @@
 				border-radius: 50%;
 				text-align: center;
 			}
-			
+
 			.btnbackcss>span {
 				line-height: 40px;
 				font-size: 18px;
 				cursor: pointer;
 				color: white
 			}
+
+			.lTroom {
+				position: absolute;
+				top: 0px;
+				width: auto;
+				height: auto,
+				color:white;
+			}
+
+			
+			.kqmc {
+				padding-left: 20px;
+				height: 50px;
+				line-height: 50px;
+				font-size: 18px;
+				color: #31fcff
+			}
+
+			
+			.orgmc {
+				padding-left: 20px;
+				height: 30px;
+				line-height: 30px;
+				font-size: 22px;
+				color: #eff0f1
+			}
+
+			
+			.w_tqitem {
+				padding-left: 25px;
+				color: #eff0f1;
+				font-size: 20px;
+				margin-top: 10px
+			}
+
+			
+			.w_tqitem>.dicon {
+				display: inline-block;
+				width: 25px;
+				height: 25px;
+				line-height: 25px
+			}
+
+			
+			.w_tqitem>.dlabelv_tqwd {
+				display: inline-block;
+				margin-left: 10px;
+				width: auto;
+				height: 25px;
+				line-height: 25px
+			}
+
+			
+			.w_tqitem>.dlabel {
+				display: inline-block;
+				margin-left: 10px;
+				width: auto;
+				height: 25px;
+				line-height: 25px
+			}
+
+			
+			.w_tqitem>.dlabelv {
+				display: inline-block;
+				margin-left: 10px;
+				width: auto;
+				height: 25px;
+				line-height: 25px
+			}
+
+			
 		</style>
 	</head>
 
@@ -41,6 +114,39 @@
 		<div id="maproom"></div>
 		<div class="btnbackcss">
 			<span onclick="back()">返回</span>
+		</div>
+		<div class="lTroom">
+			<div class="kqmc">
+				<i class="fa fa-globe"></i> 天气
+			</div>
+			<div class="orgmc">河南省</div>
+			<div class="w_tqitem">
+				<div class="dicon">
+					<i class="fa fa-cloud"></i>
+				</div>
+				<div class="dlabelv_tqwd" id="wd"></div>
+			</div>
+			<div class="w_tqitem">
+				<div class="dicon">
+					<i class="fa fa-superpowers"></i>
+				</div>
+				<div class="dlabel">风力</div>
+				<div class="dlabelv" id="fl"></div>
+			</div>
+			<div class="w_tqitem">
+				<div class="dicon">
+					<i class="fa fa-flag"></i>
+				</div>
+				<div class="dlabel">风向</div>
+				<div class="dlabelv" id="fx"></div>
+			</div>
+			<div class="w_tqitem">
+				<div class="dicon">
+					<i class="fa fa-flask"></i>
+				</div>
+				<div class="dlabel">湿度</div>
+				<div class="dlabelv" id='sd'></div>
+			</div>
 		</div>
 
 		<script>
@@ -72,13 +178,14 @@
 				mapchart = echarts.init(document.getElementById("maproom")); // 一个mmp一个实列
 				var nowCode = url;
 				showMap(url, mapchart);
-			
+				showTqmsg('410000');
+
 
 				mapchart.on('click', function(params) {
 					const selectmapName = params.name; // 根据 map-code对应关系找到 下钻地图的经纬度数据，用汉字匹配的
 					const code = mapData[selectmapName];
 					stackMap.push(nowCode);
-					if(code) {
+					if (code) {
 						showMap(code, mapchart);
 					}
 
@@ -90,6 +197,9 @@
 			});
 
 			function showMap(url, mapcharts) {
+				$("#maproom div:first-child").find("div").each((index, item) => {
+					$(item).remove();
+				});
 
 				let soureurl = 'mapdata/41/' + url + '.json';
 				$.get(soureurl, function(itJson) {
@@ -183,14 +293,15 @@
 						]
 					};
 					mapcharts.setOption(mapOption);
-                    showKD();
+					showKD();
 				});
 			}
 
 			function back() {
 
 				const code = stackMap.pop();
-				if(code) {
+				if (code) {
+
 					showMap(code, mapchart);
 				} else {
 					alert('已是第一级');
@@ -198,6 +309,7 @@
 			}
 
 			function showKD() {
+
 				const kdData = [{
 					bzhkdid: "K330100004",
 					kdbh: "330102",
@@ -219,16 +331,16 @@
 					kdmc: "郑州四中",
 					kdwd: 33.304043,
 				}];
-                kdData.forEach(function(item) {
-                	const $content = getMarkerContent({
-                		key:'',
-                		markerbg:'red',
-                		markerjd:'kdjd',
-                		markerwd:'kdwd',
-                		markermc:'kdmc',
-                	}, item);
-                	$("#maproom div:first-child").append($content);
-                });
+				kdData.forEach(function(item) {
+					const $content = getMarkerContent({
+						key: '',
+						markerbg: 'red',
+						markerjd: 'kdjd',
+						markerwd: 'kdwd',
+						markermc: 'kdmc',
+					}, item);
+					$("#maproom div:first-child").append($content);
+				});
 			}
 
 			/**
@@ -267,7 +379,9 @@
 				const xyarr = convertTopixel(mapchart, jdv, wdv);
 				const x = xyarr[0];
 				const y = xyarr[1];
-				const $content = $('<div style="width: 8px;height: 8px;border-radius: 4px 4px;cursor: pointer;z-index: 0; background-color: ' + markercolor + '">');
+				const $content = $(
+					'<div style="width: 8px;height: 8px;border-radius: 4px 4px;cursor: pointer;z-index: 0; background-color: ' +
+					markercolor + '">');
 				$content.attr("title", titlev);
 				$content.attr("id", kdbzidv);
 				$content.css({
@@ -275,10 +389,10 @@
 					left: (x - 4) + "px",
 					top: (y - 4) + "px"
 				});
-//				$content.click((e) => {
-//					this.stopBubble(e);
-//					this.clickTcMarker(btnkey, markobj);
-//				});
+				//				$content.click((e) => {
+				//					this.stopBubble(e);
+				//					this.clickTcMarker(btnkey, markobj);
+				//				});
 				$content.on("mousemove", function() {
 					$content.css({
 						"width": "16px",
@@ -302,6 +416,50 @@
 					});
 				});
 				return $content;
+			}
+
+
+			/**
+			 *
+			 * @param {string} xzbm
+			 */
+			function showTqmsg(xzbm) {
+
+				if (!xzbm) {
+					return
+				}
+				getWeatherByGaoDe(xzbm, (resp) => {
+					if (resp.length) {
+						const obj = resp[0];
+						const wd = obj.weather + " " + obj.temperature + "℃"; // 天气+ 温度
+						const fl = obj.windpower; // 风力
+						const fx = obj.winddirection; // 风向
+						const sd = obj.humidity; // 湿度
+						$('#wd').text(wd);
+						$('#fl').text(fl);
+						$('#fx').text(fx);
+						$('#sd').text(sd);
+					}
+				});
+			}
+
+			function getWeatherByGaoDe(xzbm, callback) {
+				// https://lbs.amap.com/api/webservice/guide/api/weatherinfo/  使用的是高德天气查询
+				const url = "https://restapi.amap.com/v3/weather/weatherInfo";
+				$.get(url, {
+					"city": xzbm,
+					"key": "88e07dad205561a18c71a32db17fe1bc"
+				}, (resp) => {
+					const info = resp.info;
+					if (info == "OK") {
+						const lives = resp.lives;
+						if (lives && lives.length) {
+							callback(lives);
+						} else {
+							callback([])
+						}
+					}
+				});
 			}
 		</script>
 	</body>
