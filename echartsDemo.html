@@ -56,10 +56,30 @@
 				width: 450px;
 				height: 180px;
 			}
+			
+			.rs_ver{
+				position: absolute;
+				left: 500px;
+				top:10px;
+			}
+			.scrollRoom_ver{
+				width: 450px;
+				height: 280px;
+				overflow: hidden
+			}
+			.helproom_ver{
+				width: 450px;
+				height: 1120px
+			}
+			
+			
+			
 		</style>
 		<script>
 			var chart = [];
+			var chart_ver = [];
 			var lockid;
+			var lockid_ver;
 			$(function() {
 				let qylList = [{
 					"bh": "01",
@@ -106,11 +126,17 @@
 				qylList.forEach((item, index) => {
 					initPie1(item.kdqys, Number(item.kds) - Number(item.kdqys), item.kcqys, Number(item.kcs) - Number(item.kcqys),
 						item.jgmc, index);
+					initPie2(item.kdqys, Number(item.kds) - Number(item.kdqys), item.kcqys, Number(item.kcs) - Number(item.kcqys),
+						item.jgmc, index);	
 				});
 
 				if (lockid) {
 					clearInterval(lockid);
 				}
+				if (lockid_ver) {
+					clearInterval(lockid_ver);
+				}
+				
 				lockid = setInterval(() => {
 					$(".rs_kdkcqys .scrollRoom").animate({
 						scrollLeft: 450
@@ -123,6 +149,20 @@
 						}
 					});
 				}, 3000);
+				
+				lockid_ver = setInterval(()=> {
+					$(".rs_ver .scrollRoom_ver").animate({
+						scrollTop: 280
+					}, "slow", 'linear', () => {
+						const templateroom = document.querySelector(".rs_ver .helproom_ver"); //容器
+						if (templateroom.children) {
+							const firstchild = templateroom.children.item(0); //容器第一个元素
+							$(firstchild).appendTo($(templateroom));
+							document.querySelector(".rs_ver .scrollRoom_ver").scrollLeft = 0;
+						}
+					});
+					
+				},3000);
 
 			});
 
@@ -135,6 +175,18 @@
 				chart[id] = echarts.init(document.querySelectorAll('.rs_kdkcqys .item').item(id));
 				const optionv = getOption(kdqys, kdwqys, kcqys, kcwqys, name);
 				chart[id].setOption(optionv);
+			}
+			
+			
+			function initPie2(kdqys, kdwqys, kcqys, kcwqys, name, id){
+
+				if (chart_ver[id]) {
+					chart_ver[id].clear();
+					chart_ver[id].dispose();
+				}
+				chart_ver[id] = echarts.init(document.querySelectorAll('.rs_ver .item').item(id));
+				const optionv = getOption(kdqys, kdwqys, kcqys, kcwqys, name);
+				chart_ver[id].setOption(optionv);
 			}
 
 
@@ -434,7 +486,6 @@
 				<div class="helproom">
 					<div class="itemroom">
 						<div class="item"></div>
-						
 					</div>
 					<div class="itemroom">
 						<div class="item"></div>
@@ -452,6 +503,26 @@
 			
 					</div>
 			
+				</div>
+			</div>
+		</div>
+		
+		
+		<div class="rs_ver">
+			<div class="scrollRoom_ver">
+				<div class="helproom_ver">
+					<div class="itemroom">
+						<div class="item"></div>
+					</div>
+					<div class="itemroom">
+						<div class="item"></div>
+					</div>
+					<div class="itemroom">
+						<div class="item"></div>
+					</div>
+					<div class="itemroom">
+						<div class="item"></div>
+					</div>
 				</div>
 			</div>
 		</div>
