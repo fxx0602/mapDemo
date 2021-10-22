@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>水球图</title>
+		<link rel="stylesheet" href="css/font-awesome/css/font-awesome.css">
+		<script src='js/jquery.js'></script>
+		<script src="js/echarts.js"></script>
+		<script src="js/echarts-liquidfill.js"></script>
+
+		<script type="text/javascript">
+			$(function() {
+				var bjLiquidFill2 = echarts.init(document.getElementById('chart1'));
+			
+				var option2 = {
+					// title: {
+					// 	text: "2017年",
+					// 	x: 'center',
+					// 	y: '110px',
+					// 	textStyle: {
+					// 		fontSize: 16,
+					// 		fontWeight: 'normal',
+					// 		color: '#ffffff'
+					// 	}
+					// },
+					series: [{
+						name: '2017',
+						type: 'liquidFill',
+						center: ['50%', '50%'],
+						data: [0.55],
+						radius: '70%',
+						outline: {
+							show: true,
+							borderDistance: 1, // 边框线与图表的距离 数字
+							itemStyle: {
+								opacity: 1, // 边框的透明度   默认为 1
+								borderWidth: 2, // 边框的宽度
+								//shadowBlur: 1, // 边框的阴影范围 一旦设置了内外都有阴影
+								//shadowColor: '#fff', // 边框的阴影颜色,
+								borderColor: '#5D8A42' // 边框颜色
+							}
+						},
+						color: ['#5D8A42'],
+						label: {
+							fontSize: 20,
+							fontWight: 'normal',
+							// outsideColor: '#5D8A42',
+							color: '#5D8A42',
+							insideColor: '#ffffff',
+							position: ['50%', '45%'],
+							formatter: function(params) {
+								console.log(params);
+								const data = params.data;
+								const seriesName = params.seriesName;
+
+								const str = (data * 100).toFixed(1) + '%';
+								return str;
+							},
+						},
+					}, ],
+				};
+				bjLiquidFill2.setOption(option2);
+			});
+		</script>
+	</head>
+	<body>
+		<div id="chart1" style="width: 400px;height: 400px;"></div>
+	</body>
+</html>
