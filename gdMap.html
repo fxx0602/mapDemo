@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>高德地图</title>
+		<script src="js/jquery.js"></script>
+		<script src="https://webapi.amap.com/maps?v=1.4.3&key=c238ab518bf555749ae65a0364f92ec0&plugin=AMap.DistrictSearch"></script>
+		<style>
+			#container {
+				width:1000px;
+				height: 600px;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div id="container"></div>
+	</body>
+	<script type="text/javascript">
+		$(function() {
+			map = new AMap.Map('container', {
+				resizeEnable: true, //是否监控地图容器尺寸变化，默认值为false
+				center: [115, 30],
+				zoom: 7, //地图显示的缩放级别，若center与level未赋值，地图初始化默认显示用户所在城市范围，没有center（中心点）和level ，所以这个暂时无效
+			});
+			var geocoder;
+			var graspobj;
+			bmskdtjmarker = [];
+			AMap.plugin(['AMap.ToolBar', 'AMap.Scale', 'AMap.OverView', 'AMap.Geocoder', "AMap.GraspRoad"],
+				function() {
+					//缩放，平易等工具条
+					// that.map.addControl(new AMap.ToolBar());
+					//比例尺
+					//that.map.addControl(new AMap.Scale());
+					//鹰眼
+					map.addControl(new AMap.OverView({
+						isOpen: false
+					}));
+					geocoder = new AMap.Geocoder({
+						radius: 1000,
+						extensions: "all"
+					});
+					map.addControl(geocoder);
+					// 轨迹纠偏
+					graspobj = new AMap.GraspRoad();
+				});
+			addMarker([112.263542, 30.323592], 'M42100201', '沙市区保密室', 'bms', []);
+			drawBounds();
+		});
+
+
+		function addMarker(positionv, jdid, jdmc, lx, kdsjblist) {
+			let iconstr = "";
+			let listrs = "";
+			if (lx == "bms") {
+				iconstr = "img/marker_bms.png";
+				kdsjblist.forEach((item) => {
+					listrs += "<li style='padding: 5px 0px'>" + item.kdmc + "：" + item.sjbsl + "</li>";
+				});
+			} else if (lx == "bzhkd") {
+				iconstr = "img/marker_kd.png";
+				listrs += "<li style='padding: 5px 0px'>试卷包数量：" + kdsjblist[0].sjbsl + "</li>";
+			}
+			if (!bmskdtjmarker[jdid]) {
+				bmskdtjmarker[jdid] = new AMap.Marker({
+					map: map,
+					position: [112.263542, 30.323592],
+					offset: new AMap.Pixel(-20, -15),
+					//angle: Number(markobj.fxj) + 90 + 180,
+					angle: 0,
+					icon: new AMap.Icon({
+						//34x18px
+						image: iconstr,
+						imageOffset: new AMap.Pixel(0, 0),
+						imageSize: new AMap.Size(40, 30)
+					}),
+					zIndex: 100, //默认值是100
+					// extData: markobj
+				}).on('click', () => {
+					if (bmskdtjmarker[jdid].getLabel()) {
+						bmskdtjmarker[jdid].setLabel(null)
+					} else {
+						bmskd_label_text(jdid, jdmc, listrs)
+					}
+				});
+			}
+		}
+
+
+		function bmskd_label_text(jdid, jdmc, listrs) {
+			bmskdtjmarker[jdid].setLabel({
+				offset: new AMap.Pixel(60, 10), //设置文本标注偏移量
+				content: "<div  style='position: relative;width: 200px;height: auto;padding: 10px 15px;padding-bottom: 5px'><div style='position: absolute;left: 20px;top: -20px;width: 20px;height: 15px; border-bottom: 15px solid #0D73F3;border-left: 20px solid transparent;border-right: 20px solid transparent;'></div>" +
+					"<div style='width: 100%;height: 25px;line-height: 25px;padding-left: 10px; border-left: 5px solid #0D73F3;font-size: 15px'>" +
+					jdmc + "</div>" +
+					"<ul style='list-style: none;padding-left: 15px;font-size: 12px'>" +
+					listrs +
+					"</ul></div>", //设置文本标注内容
+				direction: 'bottom' //设置文本标注方位
+			});
+		}
+
+		function drawBounds() {
+			//加载行政区划插件
+			var opts = {
+				subdistrict: 0, //获取边界不需要返回下级行政区
+				extensions: 'all', //返回行政区边界坐标组等具体信息
+				level: 'province' //查询行政级别为 市
+			};
+			district = new AMap.DistrictSearch(opts);
+			//行政区查询
+			// district.setLevel(document.getElementById('level').value)
+			district.search('湖北省', function(status, result) {
+				// map.remove(polygons) //清除上次结果
+				var polygons = [];
+				var bounds = result.districtList[0].boundaries;
+				if (bounds) {
+					for (var i = 0, l = bounds.length; i < l; i++) {
+						//生成行政区划polygon
+						var polygon = new AMap.Polygon({
+							strokeWeight: 1,
+							path: bounds[i],
+							fillOpacity: 0.4,
+							fillColor: '#80d8ff',
+							strokeColor: '#0091ea'
+						});
+						polygons.push(polygon);
+					}
+				}
+				map.add(polygons);
+				map.setFitView(polygons); //视口自适应
+			});
+		}
+	</script>
+</html>
